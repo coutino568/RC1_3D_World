@@ -101,9 +101,7 @@ class Raycaster(object):
     def render(self):
         halfWidth = int(self.width / 2)
         halfHeight = int(self.height / 2)
-
-        self.drawPlayerIcon(pygame.Color('black'))
-
+        
         for column in range(RAY_AMOUNT):
             angle = self.player['angle'] - (self.player['fov'] / 2) + (self.player['fov'] * column / RAY_AMOUNT)
             dist, id, tx = self.castRay(angle)
@@ -129,6 +127,21 @@ class Raycaster(object):
             self.screen.set_at( (halfWidth+1, i), pygame.Color('black'))
             self.screen.set_at( (halfWidth-1, i), pygame.Color('black'))
 
+        for x in range(0, halfWidth, self.blocksize):
+            for y in range(0, self.height, self.blocksize):
+
+                i = int(x/self.blocksize)
+                j = int(y/self.blocksize)
+
+                if j < len(self.map):
+                    if i < len(self.map[j]):
+                        if self.map[j][i] != ' ':
+                            self.drawBlock(x, y, self.map[j][i])
+
+        self.drawPlayerIcon(pygame.Color('black'))
+
+        
+
 
 width = 1000
 height = 500
@@ -145,11 +158,6 @@ rCaster.load_map("world.txt")
 
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 25)
-
-def updateFPS():
-    fps = str(int(clock.get_fps()))
-    fps = font.render(fps, 1, pygame.Color("white")) 
-    return fps
 
 def updateStatus():
     if (not isPaused):
@@ -203,17 +211,13 @@ while isRunning:
     screen.fill(pygame.Color("gray"))
 
     # Techo
-    screen.fill(pygame.Color("saddlebrown"), (int(width / 2), 0,  int(width / 2), int(height / 2)))
+    screen.fill(pygame.Color("white"), (int(width / 2), 0,  int(width / 2), int(height / 2)))
 
     # Piso
     screen.fill(pygame.Color("dimgray"), (int(width / 2), int(height / 2),  int(width / 2), int(height / 2)))
 
 
     rCaster.render()
-
-    #FPS
-    screen.fill(pygame.Color("black"), (0,0,250,30) )
-    screen.blit(updateFPS(), (0,0))
 
     screen.blit(updateStatus(),(50,0))
     clock.tick(60)
